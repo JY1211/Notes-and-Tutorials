@@ -50,15 +50,15 @@ SELECT * FROM nobel WHERE subject = 'Medicine' AND yr < 1910 OR subject = 'Liter
 
 SELECT * FROM nobel WHERE winner = 'Peter Grünberg';
 
---12.Find all details of the prize won by EUGENE O'NEILL
+--*12*.Find all details of the prize won by EUGENE O'NEILL [You can't put a single quote in a quote string directly. You can use two single quotes within a quoted string.]
 
 SELECT * FROM nobel WHERE winner = 'Eugene O''Neill';
 
---13. List the winners, year and subject where the winner starts with Sir. Show the the most recent first, then by name order.
+--*13*. List the winners, year and subject where the winner starts with Sir. Show the the most recent first, then by name order. [the use of DECS]
 
 Select winner, yr, subject FROM nobel WHERE winner LIKE 'Sir%' ORDER BY yr DESC, winner;
 
---14. Show the 1984 winners ordered by subject and winner name; but list Chemistry and Physics last.
+--*14*. Show the 1984 winners ordered by subject and winner name; but list Chemistry and Physics last. [!!!subject IN ('Physics','Chemistry')) can be used as value.]
 
 SELECT winner, subject
   FROM nobel
