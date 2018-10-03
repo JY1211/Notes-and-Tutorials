@@ -38,8 +38,8 @@ WHERE gdp > ALL(SELECT gdp
                 FROM world 
                 WHERE gdp > 0 AND continent = 'Europe');
 
---7. Find the largest country (by area) in each continent, show the continent, the name and the area:
-
+--*7*. Find the largest country (by area) in each continent, show the continent, the name and the area:
+-- The usage of 'world x' and 'world y'. Inside the ALL function, it's the list to be looped on. 
 SELECT continent, name, area 
 FROM world x
 WHERE area >= ALL(SELECT area
@@ -64,11 +64,12 @@ WHERE continent IN (SELECT continent
                                           FROM world y 
                                           WHERE x.continent = y.continent)
                    )
+                   
 --*10*. Some countries have populations more than three times that of any of their neighbors (in the same continent). Give the countries and continents.                                                           
 -- Be aware the use of a.name!= y.name
 SELECT name, continent 
 FROM world x
 WHERE population >= ALL(SELECT population*3 
-                                              FROM world y
-                                              WHERE x.continent=y.continent AND x.name != y.name)
+                        FROM world y
+                        WHERE x.continent=y.continent AND x.name != y.name)
 
