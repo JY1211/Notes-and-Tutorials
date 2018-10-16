@@ -42,20 +42,20 @@ SELECT teamname, COUNT(*) FROM goal JOIN eteam ON eteam.id = goal.teamid GROUP B
 
 SELECT stadium, COUNT(*) FROM goal JOIN game ON matchid = id GROUP BY stadium;
 
---11. For every match involving 'POL', show the matchid, date and the number of goals scored.
-
+--*11*. For every match involving 'POL', show the matchid, date and the number of goals scored.
+-- in GROUP BY, it should contain all columns.
 SELECT matchid,mdate, COUNT(*)
   FROM game JOIN goal ON matchid = id 
- WHERE (team1 = 'POL' OR team2 = 'POL') GROUP BY matchid;
+ WHERE (team1 = 'POL' OR team2 = 'POL') GROUP BY matchid, mdate;
 
  --12. For every match where 'GER' scored, show matchid, match date and the number of goals scored by 'GER'
 
 SELECT matchid, mdate, COUNT(*) FROM goal JOIN game ON id = matchid WHERE (team1 = 'GER' OR team2 = 'GER') AND teamid = 'GER' GROUP BY matchid;
 
---13. List every match with the goals scored by each team as shown.
-
+--*13*. List every match with the goals scored by each team as shown.
+-- should use left join instead of join, becuase use join will delete the cases 0-0
 SELECT DISTINCT mdate, team1,
 SUM(CASE WHEN teamid=team1 THEN 1 ELSE 0 END) score1, team2, SUM(CASE WHEN teamid=team2 THEN 1 ELSE 0 END) score2
-FROM game JOIN goal ON matchid = id
+FROM game LEFT JOIN goal ON matchid = id
 GROUP BY mdate,team1,team2
 ORDER BY mdate,team1,team2;
