@@ -40,30 +40,55 @@ SELECT title FROM movie JOIN casting ON movieid = id WHERE actorid = (SELECT id 
 
 SELECT title FROM movie JOIN casting ON movieid = id WHERE actorid = (SELECT id FROM actor WHERE name = 'Harrison Ford') AND ord != 1;
 
---11. List the films together with the leading star for all 1962 films.
-
+--*11*. List the films together with the leading star for all 1962 films.
+-- double join
 SELECT title, name FROM (actor JOIN casting ON  id = actorid) JOIN movie ON movie.id = movieid WHERE ord = 1 AND yr = 1962 GROUP BY title; 
 
 --12. Which were the busiest years for 'John Travolta', show the year and the number of movies he made each year for any year in which he made more than 2 movies.
-
+-- method1
 SELECT yr, COUNT(*) FROM (actor JOIN casting ON actorid = actor.id) JOIN movie ON movieid = movie.id WHERE name = 'John Travolta' GROUP BY yr HAVING COUNT(*) > 2;
+-- method2: be careful every derived table must have its own alias sql!!!
+SELECT yr,COUNT(title) FROM
+  movie JOIN casting ON movie.id=movieid
+         JOIN actor   ON actorid=actor.id
+where name='John Travolta'
+GROUP BY yr
+HAVING COUNT(title)=(SELECT MAX(c) FROM
+(SELECT yr,COUNT(title) AS c FROM
+   movie JOIN casting ON movie.id=movieid
+         JOIN actor   ON actorid=actor.id
+ where name='John Travolta'
+ GROUP BY yr) AS t
+)
 
 --13. List the film title and the leading actor for all of the films 'Julie Andrews' played in.
-
+--method 1
 SELECT title, name
-FROM (movie JOIN casting ON movie.id=movieid) JOIN actor on actor.id=actorid
-WHERE ord=1 AND title IN(SELECT title
-FROM (movie JOIN casting ON movie.id=movieid) JOIN actor on actor.id=actorid
-WHERE name='Julie Andrews') AND movie.id IN(SELECT movie.id FROM(movie JOIN casting ON movie.id=movieid) JOIN actor on actor.id=actorid WHERE name='Julie Andrews')
-ORDER BY name;
+ FROM  movie JOIN casting ON movie.id=movieid
+             JOIN actor ON actorid=actor.id
+   WHERE movieid IN (SELECT movieid 
+                                      FROM casting JOIN actor ON actorid=actor.id 
+                                        WHERE name =  'Julie Andrews') 
+              AND ord=1;
+--method 2: put ord=1 in to ON()
+SELECT title, name
+ FROM  movie JOIN casting ON (movie.id=movieid AND ord=1)
+             JOIN actor ON actorid=actor.id
+   WHERE movieid IN (SELECT movieid 
+                                      FROM casting JOIN actor ON actorid=actor.id 
+                                        WHERE name =  'Julie Andrews');
 
 --14. Obtain a list, in alphabetical order, of actors who've had at least 30 starring roles.
 
-SELECT name FROM (actor JOIN casting ON actorid = actor.id) JOIN movie ON movieid = movie.id WHERE ord = 1 AND actor.id = actorid GROUP BY name HAVING count(*) >= 30;
+SELECT name FROM (actor JOIN casting ON actorid = actor.id) JOIN movie ON movieid = movie.id WHERE ord = 1 GROUP BY name HAVING count(*) >= 30;
 
 --15. List the films released in the year 1978 ordered by the number of actors in the cast.
 
-SELECT title, COUNT(actorid) FROM (movie JOIN casting ON movieid = movie.id) JOIN actor ON actor.id = actorid WHERE yr = 1978 GROUP BY title ORDER BY COUNT(actorid) DESC, movieid;
+SELECT title, count(*) AS c
+ FROM movie JOIN casting ON movieid=id 
+  WHERE yr =1978
+   GROUP BY title
+   ORDER BY c DESC, title;
 
 --16. List all the people who have worked with 'Art Garfunkel'.
 SELECT name FROM (actor JOIN casting ON actorid = actor.id) JOIN movie ON movieid = movie.id WHERE movieid IN (SELECT movieid FROM  (actor JOIN casting ON actorid = actor.id) JOIN movie ON movieid = movie.id WHERE name = 'Art Garfunkel') AND name != 'Art Garfunkel';
